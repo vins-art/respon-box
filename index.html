@@ -68,7 +68,6 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     <button onclick="logout()">Logout</button>
   </div>
 
-  <!-- MAHASISWA -->
   <div class="card hidden" id="menuMahasiswa">
     <h2>Menu Mahasiswa</h2>
     <div class="menu">
@@ -77,7 +76,6 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     </div>
   </div>
 
-  <!-- ADMIN & DEKAN -->
   <div class="card hidden" id="menuAdmin">
     <h2>Menu Admin / Dekan</h2>
     <button onclick="hitungSAW()">Hitung SAW</button>
@@ -97,7 +95,6 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     </table>
   </div>
 
-  <!-- FORM LAPORAN -->
   <div class="card hidden" id="formLaporan">
     <h2>Laporan Gangguan</h2>
 
@@ -113,7 +110,6 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     <button onclick="kirimLaporan()">Kirim</button>
   </div>
 
-  <!-- STATUS MAHASISWA -->
   <div class="card hidden" id="statusPage">
     <h2>Status Laporan</h2>
     <div id="statusList"></div>
@@ -150,7 +146,19 @@ function login(){
   }
 }
 
-function logout(){location.reload()}
+function logout(){
+  dashboard.classList.add('hidden');
+  loginPage.classList.remove('hidden');
+
+  menuMahasiswa.classList.add('hidden');
+  menuAdmin.classList.add('hidden');
+  formLaporan.classList.add('hidden');
+  statusPage.classList.add('hidden');
+
+  role.value='';
+  username.value='';
+  password.value='';
+}
 
 function showForm(){
   formLaporan.classList.remove('hidden');
@@ -205,9 +213,7 @@ function render(){
       <td>${l.lokasi}</td>
       <td>${l.catatan}</td>
       <td>${l.prioritas}</td>
-      <td>
-        <button onclick="ubahStatus(${i})">${l.status}</button>
-      </td>
+      <td><button onclick="ubahStatus(${i})">${l.status}</button></td>
     </tr>`;
   });
 }
