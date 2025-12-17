@@ -9,7 +9,6 @@
       --blue: #4aa3df;
       --blue-soft: #eaf4fb;
       --white: #ffffff;
-      --gray: #666;
     }
     * {
       box-sizing: border-box;
@@ -43,9 +42,6 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    button:hover {
-      opacity: 0.9;
-    }
     select, input {
       width: 100%;
       padding: 10px;
@@ -66,14 +62,6 @@
       text-align: center;
       cursor: pointer;
     }
-    .badge {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      display: inline-block;
-    }
     .header {
       display: flex;
       justify-content: space-between;
@@ -87,13 +75,22 @@
   <div class="card">
     <h1>Respon Box</h1>
     <p>Login Sistem Pelaporan Fasilitas</p>
+
     <label>Pilih Peran</label>
-    <select id="role">
+    <select id="role" onchange="toggleAuth()">
       <option value="">-- Pilih User --</option>
-      <option value="dekan">Dekan</option>
       <option value="admin">Admin</option>
+      <option value="dekan">Dekan</option>
       <option value="mahasiswa">Mahasiswa</option>
     </select>
+
+    <div id="auth" class="hidden">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Masukkan username">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password">
+    </div>
+
     <button onclick="login()">Masuk</button>
   </div>
 </div>
@@ -104,7 +101,7 @@
     <button onclick="logout()">Logout</button>
   </div>
 
-  <div class="card" id="menuMahasiswa">
+  <div class="card hidden" id="menuMahasiswa">
     <h2>Menu Mahasiswa</h2>
     <div class="menu">
       <div class="card" onclick="openForm()">Laporkan Gangguan</div>
@@ -120,43 +117,29 @@
       <div class="card">Monitoring</div>
     </div>
   </div>
-
-  <div class="card hidden" id="formLaporan">
-    <h2>Form Pelaporan</h2>
-    <label>Jenis Gangguan</label>
-    <select>
-      <option>Lampu</option>
-      <option>Kursi</option>
-      <option>AC</option>
-      <option>Listrik</option>
-      <option>Lift</option>
-      <option>Lainnya</option>
-    </select>
-
-    <label>Lokasi</label>
-    <input type="text" placeholder="Contoh: Ruang 203" />
-
-    <label>Tingkat Kerusakan</label>
-    <select>
-      <option>Ringan</option>
-      <option>Sedang</option>
-      <option>Berat</option>
-    </select>
-
-    <button onclick="submitLaporan()">Kirim Laporan</button>
-  </div>
-
-  <div class="card hidden" id="hasil">
-    <h2>Hasil Prioritas</h2>
-    <p>Prioritas Laporan:</p>
-    <span class="badge">Tinggi</span>
-  </div>
 </div>
 
 <script>
+  function toggleAuth() {
+    const role = document.getElementById('role').value;
+    const auth = document.getElementById('auth');
+    auth.classList.toggle('hidden', role === 'mahasiswa' || role === '');
+  }
+
   function login() {
     const role = document.getElementById('role').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
     if (!role) return alert('Pilih peran');
+
+    if (role === 'admin' && (username !== 'admin' || password !== 'admin123')) {
+      return alert('Login Admin gagal');
+    }
+
+    if (role === 'dekan' && (username !== 'dekan' || password !== 'dekan123')) {
+      return alert('Login Dekan gagal');
+    }
 
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('dashboard').classList.remove('hidden');
@@ -181,11 +164,7 @@
   }
 
   function openForm() {
-    document.getElementById('formLaporan').classList.remove('hidden');
-  }
-
-  function submitLaporan() {
-    document.getElementById('hasil').classList.remove('hidden');
+    alert('Form laporan (demo)');
   }
 </script>
 
