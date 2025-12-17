@@ -4,237 +4,158 @@
 <meta charset="UTF-8">
 <title>Respon Box</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
 :root{
   --blue:#4aa3df;
   --blue-soft:#eaf4fb;
-  --white:#ffffff;
-  --gray:#666;
+  --white:#fff;
 }
-*{
-  box-sizing:border-box;
-  font-family:Arial, Helvetica, sans-serif;
-}
-body{
-  margin:0;
-  background:var(--blue-soft);
-}
-.container{
-  max-width:1000px;
-  margin:auto;
-  padding:20px;
-}
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:var(--blue-soft)}
+.container{max-width:900px;margin:auto;padding:20px}
 .card{
   background:var(--white);
-  border-radius:12px;
+  border-radius:10px;
   padding:20px;
-  box-shadow:0 4px 12px rgba(0,0,0,.05);
   margin-bottom:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,.05)
 }
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-h1,h2{
-  margin:0 0 10px;
-  color:var(--blue);
-}
+h1,h2{color:var(--blue);margin-top:0}
 button{
   background:var(--blue);
-  color:var(--white);
+  color:white;
   border:none;
   padding:10px 16px;
   border-radius:6px;
-  cursor:pointer;
+  cursor:pointer
 }
-select,input{
+select,input,textarea{
   width:100%;
   padding:10px;
   margin:8px 0 16px;
   border-radius:6px;
-  border:1px solid #ccc;
+  border:1px solid #ccc
 }
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
+.menu .card{text-align:center;cursor:pointer}
 .hidden{display:none}
-.menu{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:15px;
-}
-.menu .card{
-  text-align:center;
-  cursor:pointer;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid #ddd;
-  text-align:left;
-}
-.badge{
-  padding:4px 10px;
-  border-radius:12px;
-  background:var(--blue-soft);
-  color:var(--blue);
-  font-size:12px;
-}
+.badge{padding:4px 10px;border-radius:12px;background:var(--blue-soft);color:var(--blue)}
+.alarm{color:red;font-weight:bold}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div class="container" id="loginPage">
   <div class="card">
     <h1>Respon Box</h1>
-    <p>Sistem Pelaporan Fasilitas</p>
-
-    <label>Pilih Peran</label>
-    <select id="role" onchange="toggleAuth()">
-      <option value="">-- Pilih User --</option>
+    <select id="role">
+      <option value="">Pilih User</option>
       <option value="mahasiswa">Mahasiswa</option>
       <option value="admin">Admin</option>
       <option value="dekan">Dekan</option>
     </select>
-
-    <div id="auth" class="hidden">
-      <input id="username" placeholder="Username">
-      <input id="password" type="password" placeholder="Password">
-    </div>
-
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
     <button onclick="login()">Masuk</button>
   </div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="container hidden" id="dashboard">
-
-  <div class="card header">
+  <div class="card">
     <h2 id="title"></h2>
     <button onclick="logout()">Logout</button>
   </div>
 
-  <!-- MENU MAHASISWA -->
+  <!-- MAHASISWA -->
   <div class="card hidden" id="menuMahasiswa">
     <h2>Menu Mahasiswa</h2>
     <div class="menu">
-      <div class="card" onclick="showForm()">Laporkan Gangguan</div>
+      <div class="card" onclick="showForm()">Laporan Gangguan</div>
       <div class="card" onclick="showStatus()">Status Laporan</div>
     </div>
   </div>
 
-  <!-- MENU ADMIN -->
+  <!-- ADMIN & DEKAN -->
   <div class="card hidden" id="menuAdmin">
     <h2>Menu Admin / Dekan</h2>
-    <div class="menu">
-      <div class="card" onclick="showAll()">Semua Laporan</div>
-      <div class="card" onclick="hitungSAW()">Prioritas (SAW)</div>
-    </div>
+    <button onclick="hitungSAW()">Hitung SAW</button>
+    <button onclick="exportCSV()">Export CSV</button>
+    <table>
+      <thead>
+        <tr>
+          <th>!</th><th>Kategori</th><th>Fasilitas</th>
+          <th>Lokasi</th><th>Catatan</th>
+          <th>Prioritas</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabel"></tbody>
+    </table>
   </div>
 
   <!-- FORM LAPORAN -->
   <div class="card hidden" id="formLaporan">
-    <h2>Form Pelaporan</h2>
+    <h2>Laporan Gangguan</h2>
 
-    <label>Kategori Fasilitas</label>
-    <select id="kategori" onchange="ubahFasilitas()">
+    <select id="kategori" onchange="loadJenis()">
+      <option value="">Kategori Fasilitas</option>
       <option value="gedung">Fasilitas Gedung</option>
       <option value="kelas">Fasilitas Kelas</option>
     </select>
 
-    <label>Jenis Fasilitas</label>
     <select id="jenis"></select>
-
-    <label>Lokasi</label>
-    <input id="lokasi" placeholder="Contoh: Gedung A Lantai 2 / Ruang 203">
-
-    <label>Tingkat Kerusakan</label>
-    <select id="kerusakan">
-      <option value="1">Ringan</option>
-      <option value="2">Sedang</option>
-      <option value="3">Berat</option>
-    </select>
-
-    <button onclick="kirimLaporan()">Kirim Laporan</button>
+    <input id="lokasi" placeholder="Lokasi">
+    <textarea id="catatan" rows="4" placeholder="Catatan"></textarea>
+    <button onclick="kirimLaporan()">Kirim</button>
   </div>
 
-  <!-- TABEL -->
-  <div class="card hidden" id="tabelLaporan">
-    <h2>Data Laporan</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Kategori</th>
-          <th>Fasilitas</th>
-          <th>Lokasi</th>
-          <th>Kerusakan</th>
-          <th>Status</th>
-          <th>Prioritas</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="isiTabel"></tbody>
-    </table>
+  <!-- STATUS MAHASISWA -->
+  <div class="card hidden" id="statusPage">
+    <h2>Status Laporan</h2>
+    <div id="statusList"></div>
   </div>
-
 </div>
 
 <script>
-let laporan=[];
-
-const fasilitas={
-  gedung:['Lampu','Lift','Listrik','Pintu Otomatis','Eskalator','Mesin Absensi','Palang Parkir'],
-  kelas:['Kursi','Proyektor','Lampu','Papan Board']
+const akun={
+  admin:{u:'admin',p:'admin123'},
+  dekan:{u:'dekan',p:'dekan123'}
 };
 
-const bobot={kerusakan:0.5, kategori:0.3, waktu:0.2};
+const fasilitas={
+  gedung:['Lampu','Lift','Listrik','Pintu Otomatis','Eskalator','Mesin Absensi','Palang Parkir','dll'],
+  kelas:['Kursi','Proyektor','Lampu','Papan Board','dll']
+};
 
-function toggleAuth(){
-  auth.classList.toggle('hidden', role.value==='mahasiswa'||!role.value);
-}
+let laporan=[];
 
 function login(){
-  if(!role.value) return alert('Pilih peran');
-  if(role.value==='admin' && (username.value!=='admin'||password.value!=='admin123')) return alert('Login admin salah');
-  if(role.value==='dekan' && (username.value!=='dekan'||password.value!=='dekan123')) return alert('Login dekan salah');
+  const r=role.value,u=username.value,p=password.value;
+  if(r==='admin'&&(u!==akun.admin.u||p!==akun.admin.p))return alert('Admin salah');
+  if(r==='dekan'&&(u!==akun.dekan.u||p!==akun.dekan.p))return alert('Dekan salah');
 
   loginPage.classList.add('hidden');
   dashboard.classList.remove('hidden');
+  title.innerText='Dashboard '+r.toUpperCase();
 
-  title.innerText='Dashboard '+role.value;
-  menuMahasiswa.classList.toggle('hidden',role.value!=='mahasiswa');
-  menuAdmin.classList.toggle('hidden',role.value==='mahasiswa');
-
-  ubahFasilitas();
+  if(r==='mahasiswa')menuMahasiswa.classList.remove('hidden');
+  else menuAdmin.classList.remove('hidden');
 }
 
 function logout(){location.reload()}
 
-function ubahFasilitas(){
+function showForm(){
+  formLaporan.classList.remove('hidden');
+  statusPage.classList.add('hidden');
+}
+
+function loadJenis(){
   jenis.innerHTML='';
   fasilitas[kategori.value].forEach(f=>{
     jenis.innerHTML+=`<option>${f}</option>`;
   });
-}
-
-function showForm(){
-  formLaporan.classList.remove('hidden');
-  tabelLaporan.classList.add('hidden');
-}
-
-function showStatus(){
-  render();
-  tabelLaporan.classList.remove('hidden');
-  formLaporan.classList.add('hidden');
-}
-
-function showAll(){
-  render();
-  tabelLaporan.classList.remove('hidden');
 }
 
 function kirimLaporan(){
@@ -242,51 +163,74 @@ function kirimLaporan(){
     kategori:kategori.value,
     jenis:jenis.value,
     lokasi:lokasi.value,
-    kerusakan:Number(kerusakan.value),
-    status:'Menunggu',
+    catatan:catatan.value,
     waktu:Date.now(),
-    skor:0
+    skor:0,
+    prioritas:'',
+    status:'Menunggu'
   });
-  alert('Laporan berhasil dikirim');
-  lokasi.value='';
-  showStatus();
+  alert('Laporan terkirim');
 }
 
 function hitungSAW(){
-  const maxKer=Math.max(...laporan.map(l=>l.kerusakan));
-  const maxKat=2;
-  const maxWaktu=Math.max(...laporan.map(l=>l.waktu));
-
+  const maxCat=Math.max(...laporan.map(l=>l.catatan.length||1));
+  const maxTime=Math.max(...laporan.map(l=>l.waktu));
   laporan.forEach(l=>{
-    const nKer=l.kerusakan/maxKer;
-    const nKat=(l.kategori==='gedung'?2:1)/maxKat;
-    const nW=l.waktu/maxWaktu;
-    l.skor=(nKer*bobot.kerusakan)+(nKat*bobot.kategori)+(nW*bobot.waktu);
+    l.skor=(0.4*(l.kategori==='gedung'?1:0.7))+(0.4*(l.catatan.length/maxCat))+(0.2*(l.waktu/maxTime));
+    l.prioritas=l.skor>=0.75?'Tinggi':l.skor>=0.5?'Sedang':'Biasa';
   });
-
-  laporan.sort((a,b)=>b.skor-a.skor);
-  render();
-}
-
-function ubahStatus(i){
-  laporan[i].status = laporan[i].status==='Menunggu'?'Diproses':'Selesai';
   render();
 }
 
 function render(){
-  isiTabel.innerHTML='';
+  tabel.innerHTML='';
   laporan.forEach((l,i)=>{
-    isiTabel.innerHTML+=`
+    if(role.value==='admin'&&l.prioritas==='Tinggi')return;
+    if(role.value==='dekan'&&l.prioritas!=='Tinggi')return;
+
+    tabel.innerHTML+=`
     <tr>
+      <td>${l.prioritas==='Tinggi'?'<span class="alarm">▲</span>':''}</td>
       <td>${l.kategori}</td>
       <td>${l.jenis}</td>
       <td>${l.lokasi}</td>
-      <td>${l.kerusakan}</td>
-      <td><span class="badge">${l.status}</span></td>
-      <td>${l.skor.toFixed(3)}</td>
-      <td>${role.value!=='mahasiswa'?`<button onclick="ubahStatus(${i})">Ubah</button>`:''}</td>
+      <td>${l.catatan}</td>
+      <td>${l.prioritas}</td>
+      <td><button onclick="ubahStatus(${i})">${l.status}</button></td>
     </tr>`;
   });
+}
+
+function ubahStatus(i){
+  laporan[i].status=
+    laporan[i].status==='Menunggu'?'Diproses':
+    laporan[i].status==='Diproses'?'Selesai':'Selesai';
+  render();
+}
+
+function showStatus(){
+  statusPage.classList.remove('hidden');
+  formLaporan.classList.add('hidden');
+  statusList.innerHTML='';
+  laporan.forEach(l=>{
+    statusList.innerHTML+=`
+      <div class="card">
+        <b>${l.jenis}</b><br>
+        ${l.lokasi}<br>
+        Status: ${l.status}
+      </div>`;
+  });
+}
+
+function exportCSV(){
+  let csv='Kategori,Jenis,Lokasi,Catatan,Prioritas,Status\n';
+  laporan.forEach(l=>{
+    csv+=`${l.kategori},${l.jenis},${l.lokasi},${l.catatan},${l.prioritas},${l.status}\n`;
+  });
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='laporan.csv';
+  a.click();
 }
 </script>
 
