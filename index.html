@@ -47,27 +47,35 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
 
 <body>
 
-<div class="container" id="loginPage">
+<!-- HALAMAN AWAL -->
+<div class="container" id="welcomePage">
   <div class="card">
-    <h1>Respon Box</h1>
-    <select id="role">
-      <option value="">Pilih User</option>
-      <option value="mahasiswa">Mahasiswa</option>
-      <option value="admin">Admin</option>
-      <option value="dekan">Dekan</option>
-    </select>
+    <h1>Selamat Datang di Respon Box</h1>
+    <p>Silakan pilih peran untuk melanjutkan</p>
+    <button onclick="pilihRole('mahasiswa')">Mahasiswa</button>
+    <button onclick="pilihRole('admin')">Admin</button>
+    <button onclick="pilihRole('dekan')">Dekan</button>
+  </div>
+</div>
+
+<!-- LOGIN ADMIN / DEKAN -->
+<div class="container hidden" id="loginPage">
+  <div class="card">
+    <h2>Login</h2>
     <input id="username" placeholder="Username">
     <input id="password" type="password" placeholder="Password">
     <button onclick="login()">Masuk</button>
   </div>
 </div>
 
+<!-- DASHBOARD -->
 <div class="container hidden" id="dashboard">
   <div class="card">
     <h2 id="title"></h2>
     <button onclick="logout()">Logout</button>
   </div>
 
+  <!-- MAHASISWA -->
   <div class="card hidden" id="menuMahasiswa">
     <h2>Menu Mahasiswa</h2>
     <div class="menu">
@@ -76,6 +84,7 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     </div>
   </div>
 
+  <!-- ADMIN & DEKAN -->
   <div class="card hidden" id="menuAdmin">
     <h2>Menu Admin / Dekan</h2>
     <button onclick="hitungSAW()">Hitung SAW</button>
@@ -95,6 +104,7 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     </table>
   </div>
 
+  <!-- FORM LAPORAN -->
   <div class="card hidden" id="formLaporan">
     <h2>Laporan Gangguan</h2>
 
@@ -110,6 +120,7 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
     <button onclick="kirimLaporan()">Kirim</button>
   </div>
 
+  <!-- STATUS MAHASISWA -->
   <div class="card hidden" id="statusPage">
     <h2>Status Laporan</h2>
     <div id="statusList"></div>
@@ -117,6 +128,8 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
 </div>
 
 <script>
+let currentRole='';
+
 const akun={
   admin:{u:'admin',p:'admin123'},
   dekan:{u:'dekan',p:'dekan123'}
@@ -129,16 +142,40 @@ const fasilitas={
 
 let laporan=[];
 
+/* PILIH ROLE */
+function pilihRole(role){
+  currentRole=role;
+  welcomePage.classList.add('hidden');
+
+  if(role==='mahasiswa'){
+    masukDashboard('mahasiswa');
+  }else{
+    loginPage.classList.remove('hidden');
+  }
+}
+
+/* LOGIN ADMIN / DEKAN */
 function login(){
-  const r=role.value,u=username.value,p=password.value;
-  if(r==='admin'&&(u!==akun.admin.u||p!==akun.admin.p))return alert('Admin salah');
-  if(r==='dekan'&&(u!==akun.dekan.u||p!==akun.dekan.p))return alert('Dekan salah');
+  if(currentRole==='admin'){
+    if(username.value!==akun.admin.u||password.value!==akun.admin.p)
+      return alert('Login admin salah');
+  }
+
+  if(currentRole==='dekan'){
+    if(username.value!==akun.dekan.u||password.value!==akun.dekan.p)
+      return alert('Login dekan salah');
+  }
 
   loginPage.classList.add('hidden');
-  dashboard.classList.remove('hidden');
-  title.innerText='Dashboard '+r.toUpperCase();
+  masukDashboard(currentRole);
+}
 
-  if(r==='mahasiswa'){
+/* DASHBOARD */
+function masukDashboard(role){
+  dashboard.classList.remove('hidden');
+  title.innerText='Dashboard '+role.toUpperCase();
+
+  if(role==='mahasiswa'){
     menuMahasiswa.classList.remove('hidden');
   }else{
     menuAdmin.classList.remove('hidden');
@@ -146,20 +183,22 @@ function login(){
   }
 }
 
+/* LOGOUT */
 function logout(){
   dashboard.classList.add('hidden');
-  loginPage.classList.remove('hidden');
-
   menuMahasiswa.classList.add('hidden');
   menuAdmin.classList.add('hidden');
   formLaporan.classList.add('hidden');
   statusPage.classList.add('hidden');
+  loginPage.classList.add('hidden');
 
-  role.value='';
   username.value='';
   password.value='';
+  currentRole='';
+  welcomePage.classList.remove('hidden');
 }
 
+/* MAHASISWA */
 function showForm(){
   formLaporan.classList.remove('hidden');
   statusPage.classList.add('hidden');
@@ -187,6 +226,21 @@ function kirimLaporan(){
   alert('Laporan terkirim');
 }
 
+function showStatus(){
+  statusPage.classList.remove('hidden');
+  formLaporan.classList.add('hidden');
+  statusList.innerHTML='';
+  laporan.forEach(l=>{
+    statusList.innerHTML+=`
+      <div class="card">
+        <b>${l.jenis}</b><br>
+        ${l.lokasi}<br>
+        Status: ${l.status}
+      </div>`;
+  });
+}
+
+/* SAW */
 function hitungSAW(){
   const maxCat=Math.max(...laporan.map(l=>l.catatan.length||1));
   const maxTime=Math.max(...laporan.map(l=>l.waktu));
@@ -202,8 +256,8 @@ function hitungSAW(){
 function render(){
   tabel.innerHTML='';
   laporan.forEach((l,i)=>{
-    if(role.value==='admin'&&l.prioritas==='Tinggi')return;
-    if(role.value==='dekan'&&l.prioritas!=='Tinggi')return;
+    if(currentRole==='admin'&&l.prioritas==='Tinggi')return;
+    if(currentRole==='dekan'&&l.prioritas!=='Tinggi')return;
 
     tabel.innerHTML+=`
     <tr>
@@ -213,7 +267,9 @@ function render(){
       <td>${l.lokasi}</td>
       <td>${l.catatan}</td>
       <td>${l.prioritas}</td>
-      <td><button onclick="ubahStatus(${i})">${l.status}</button></td>
+      <td>
+        <button onclick="ubahStatus(${i})">${l.status}</button>
+      </td>
     </tr>`;
   });
 }
@@ -223,20 +279,6 @@ function ubahStatus(i){
     laporan[i].status==='Menunggu'?'Diproses':
     laporan[i].status==='Diproses'?'Selesai':'Selesai';
   render();
-}
-
-function showStatus(){
-  statusPage.classList.remove('hidden');
-  formLaporan.classList.add('hidden');
-  statusList.innerHTML='';
-  laporan.forEach(l=>{
-    statusList.innerHTML+=`
-      <div class="card">
-        <b>${l.jenis}</b><br>
-        ${l.lokasi}<br>
-        Status: ${l.status}
-      </div>`;
-  });
 }
 </script>
 
