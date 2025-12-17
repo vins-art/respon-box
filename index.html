@@ -39,7 +39,6 @@ select,input,textarea{
 .menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
 .menu .card{text-align:center;cursor:pointer}
 .hidden{display:none}
-.badge{padding:4px 10px;border-radius:12px;background:var(--blue-soft);color:var(--blue)}
 .alarm{color:red;font-weight:bold}
 table{width:100%;border-collapse:collapse}
 th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
@@ -82,13 +81,16 @@ th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}
   <div class="card hidden" id="menuAdmin">
     <h2>Menu Admin / Dekan</h2>
     <button onclick="hitungSAW()">Hitung SAW</button>
-    <button onclick="exportCSV()">Export CSV</button>
     <table>
       <thead>
         <tr>
-          <th>!</th><th>Kategori</th><th>Fasilitas</th>
-          <th>Lokasi</th><th>Catatan</th>
-          <th>Prioritas</th><th>Status</th>
+          <th>!</th>
+          <th>Kategori</th>
+          <th>Fasilitas</th>
+          <th>Lokasi</th>
+          <th>Catatan</th>
+          <th>Prioritas</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody id="tabel"></tbody>
@@ -140,8 +142,12 @@ function login(){
   dashboard.classList.remove('hidden');
   title.innerText='Dashboard '+r.toUpperCase();
 
-  if(r==='mahasiswa')menuMahasiswa.classList.remove('hidden');
-  else menuAdmin.classList.remove('hidden');
+  if(r==='mahasiswa'){
+    menuMahasiswa.classList.remove('hidden');
+  }else{
+    menuAdmin.classList.remove('hidden');
+    render();
+  }
 }
 
 function logout(){location.reload()}
@@ -153,6 +159,7 @@ function showForm(){
 
 function loadJenis(){
   jenis.innerHTML='';
+  if(!kategori.value)return;
   fasilitas[kategori.value].forEach(f=>{
     jenis.innerHTML+=`<option>${f}</option>`;
   });
@@ -166,7 +173,7 @@ function kirimLaporan(){
     catatan:catatan.value,
     waktu:Date.now(),
     skor:0,
-    prioritas:'',
+    prioritas:'Biasa',
     status:'Menunggu'
   });
   alert('Laporan terkirim');
@@ -176,7 +183,9 @@ function hitungSAW(){
   const maxCat=Math.max(...laporan.map(l=>l.catatan.length||1));
   const maxTime=Math.max(...laporan.map(l=>l.waktu));
   laporan.forEach(l=>{
-    l.skor=(0.4*(l.kategori==='gedung'?1:0.7))+(0.4*(l.catatan.length/maxCat))+(0.2*(l.waktu/maxTime));
+    l.skor=(0.4*(l.kategori==='gedung'?1:0.7))
+          +(0.4*(l.catatan.length/maxCat))
+          +(0.2*(l.waktu/maxTime));
     l.prioritas=l.skor>=0.75?'Tinggi':l.skor>=0.5?'Sedang':'Biasa';
   });
   render();
@@ -196,7 +205,9 @@ function render(){
       <td>${l.lokasi}</td>
       <td>${l.catatan}</td>
       <td>${l.prioritas}</td>
-      <td><button onclick="ubahStatus(${i})">${l.status}</button></td>
+      <td>
+        <button onclick="ubahStatus(${i})">${l.status}</button>
+      </td>
     </tr>`;
   });
 }
@@ -220,17 +231,6 @@ function showStatus(){
         Status: ${l.status}
       </div>`;
   });
-}
-
-function exportCSV(){
-  let csv='Kategori,Jenis,Lokasi,Catatan,Prioritas,Status\n';
-  laporan.forEach(l=>{
-    csv+=`${l.kategori},${l.jenis},${l.lokasi},${l.catatan},${l.prioritas},${l.status}\n`;
-  });
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='laporan.csv';
-  a.click();
 }
 </script>
 
