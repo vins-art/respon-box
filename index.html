@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Respon Box</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --blue: #4aa3df;
+      --blue-soft: #eaf4fb;
+      --white: #ffffff;
+      --gray: #666;
+    }
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: var(--blue-soft);
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    .card {
+      background: var(--white);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    h1, h2 {
+      color: var(--blue);
+      margin-top: 0;
+    }
+    button {
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .hidden {
+      display: none;
+    }
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    .menu .card {
+      text-align: center;
+      cursor: pointer;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      display: inline-block;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="loginPage">
+  <div class="card">
+    <h1>Respon Box</h1>
+    <p>Login Sistem Pelaporan Fasilitas</p>
+    <label>Pilih Peran</label>
+    <select id="role">
+      <option value="">-- Pilih User --</option>
+      <option value="dekan">Dekan</option>
+      <option value="admin">Admin</option>
+      <option value="mahasiswa">Mahasiswa</option>
+    </select>
+    <button onclick="login()">Masuk</button>
+  </div>
+</div>
+
+<div class="container hidden" id="dashboard">
+  <div class="card header">
+    <h2 id="title"></h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="card" id="menuMahasiswa">
+    <h2>Menu Mahasiswa</h2>
+    <div class="menu">
+      <div class="card" onclick="openForm()">Laporkan Gangguan</div>
+      <div class="card">Status Laporan</div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="menuAdmin">
+    <h2>Menu Admin / Dekan</h2>
+    <div class="menu">
+      <div class="card">Semua Laporan</div>
+      <div class="card">Prioritas (SAW)</div>
+      <div class="card">Monitoring</div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="formLaporan">
+    <h2>Form Pelaporan</h2>
+    <label>Jenis Gangguan</label>
+    <select>
+      <option>Lampu</option>
+      <option>Kursi</option>
+      <option>AC</option>
+      <option>Listrik</option>
+      <option>Lift</option>
+      <option>Lainnya</option>
+    </select>
+
+    <label>Lokasi</label>
+    <input type="text" placeholder="Contoh: Ruang 203" />
+
+    <label>Tingkat Kerusakan</label>
+    <select>
+      <option>Ringan</option>
+      <option>Sedang</option>
+      <option>Berat</option>
+    </select>
+
+    <button onclick="submitLaporan()">Kirim Laporan</button>
+  </div>
+
+  <div class="card hidden" id="hasil">
+    <h2>Hasil Prioritas</h2>
+    <p>Prioritas Laporan:</p>
+    <span class="badge">Tinggi</span>
+  </div>
+</div>
+
+<script>
+  function login() {
+    const role = document.getElementById('role').value;
+    if (!role) return alert('Pilih peran');
+
+    document.getElementById('loginPage').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+
+    document.getElementById('menuMahasiswa').classList.add('hidden');
+    document.getElementById('menuAdmin').classList.add('hidden');
+
+    if (role === 'mahasiswa') {
+      document.getElementById('title').innerText = 'Dashboard Mahasiswa';
+      document.getElementById('menuMahasiswa').classList.remove('hidden');
+    } else if (role === 'admin') {
+      document.getElementById('title').innerText = 'Dashboard Admin';
+      document.getElementById('menuAdmin').classList.remove('hidden');
+    } else {
+      document.getElementById('title').innerText = 'Dashboard Dekan';
+      document.getElementById('menuAdmin').classList.remove('hidden');
+    }
+  }
+
+  function logout() {
+    location.reload();
+  }
+
+  function openForm() {
+    document.getElementById('formLaporan').classList.remove('hidden');
+  }
+
+  function submitLaporan() {
+    document.getElementById('hasil').classList.remove('hidden');
+  }
+</script>
+
+</body>
+</html>
