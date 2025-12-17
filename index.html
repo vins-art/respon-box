@@ -1,172 +1,201 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>RESPON BOX</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --blue: #4aa3df;
-      --blue-soft: #eaf4fb;
-      --white: #ffffff;
-    }
-    * {
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-    body {
-      margin: 0;
-      background: var(--blue-soft);
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
-    .card {
-      background: var(--white);
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    h1, h2 {
-      color: var(--blue);
-      margin-top: 0;
-    }
-    button {
-      background: var(--blue);
-      color: var(--white);
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    select, input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .hidden {
-      display: none;
-    }
-    .menu {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-    }
-    .menu .card {
-      text-align: center;
-      cursor: pointer;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Respon Box</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+  --blue:#4aa3df;
+  --soft:#eaf4fb;
+  --white:#fff;
+}
+body {margin:0;background:var(--soft);font-family:Arial}
+.container {max-width:1000px;margin:auto;padding:20px}
+.card {
+  background:var(--white);
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.05);
+  margin-bottom:20px;
+}
+button {
+  background:var(--blue);
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+}
+select,input {width:100%;padding:8px;margin:6px 0 14px}
+.hidden {display:none}
+.menu {display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.menu .card {text-align:center;cursor:pointer}
+table {width:100%;border-collapse:collapse}
+th,td {padding:8px;border-bottom:1px solid #ddd}
+.header {display:flex;justify-content:space-between}
+.badge {padding:4px 8px;border-radius:8px;background:var(--soft)}
+</style>
 </head>
 <body>
 
 <div class="container" id="loginPage">
   <div class="card">
-    <h1>Respon Box</h1>
-    <p>Login Sistem Pelaporan Fasilitas</p>
-
-    <label>Pilih Peran</label>
+    <h2>Respon Box</h2>
     <select id="role" onchange="toggleAuth()">
       <option value="">-- Pilih User --</option>
+      <option value="mahasiswa">Mahasiswa</option>
       <option value="admin">Admin</option>
       <option value="dekan">Dekan</option>
-      <option value="mahasiswa">Mahasiswa</option>
     </select>
-
     <div id="auth" class="hidden">
-      <label>Username</label>
-      <input type="text" id="username" placeholder="Masukkan username">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="Masukkan password">
+      <input id="username" placeholder="Username">
+      <input id="password" type="password" placeholder="Password">
     </div>
-
     <button onclick="login()">Masuk</button>
   </div>
 </div>
 
 <div class="container hidden" id="dashboard">
   <div class="card header">
-    <h2 id="title"></h2>
+    <h3 id="title"></h3>
     <button onclick="logout()">Logout</button>
   </div>
 
   <div class="card hidden" id="menuMahasiswa">
-    <h2>Menu Mahasiswa</h2>
     <div class="menu">
-      <div class="card" onclick="openForm()">Laporkan Gangguan</div>
-      <div class="card">Status Laporan</div>
+      <div class="card" onclick="showForm()">Laporkan Gangguan</div>
+      <div class="card" onclick="showStatus()">Status Laporan</div>
     </div>
   </div>
 
   <div class="card hidden" id="menuAdmin">
-    <h2>Menu Admin / Dekan</h2>
     <div class="menu">
-      <div class="card">Semua Laporan</div>
-      <div class="card">Prioritas (SAW)</div>
-      <div class="card">Monitoring</div>
+      <div class="card" onclick="showAll()">Semua Laporan</div>
+      <div class="card" onclick="hitungSAW()">Prioritas (SAW)</div>
     </div>
+  </div>
+
+  <div class="card hidden" id="form">
+    <h3>Form Laporan</h3>
+    <select id="jenis">
+      <option>Lampu</option>
+      <option>AC</option>
+      <option>Kursi</option>
+      <option>Listrik</option>
+    </select>
+    <input id="lokasi" placeholder="Lokasi">
+    <select id="tingkat">
+      <option value="1">Ringan</option>
+      <option value="2">Sedang</option>
+      <option value="3">Berat</option>
+    </select>
+    <button onclick="kirim()">Kirim</button>
+  </div>
+
+  <div class="card hidden" id="tabel">
+    <h3>Data Laporan</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Jenis</th><th>Lokasi</th><th>Kerusakan</th><th>Status</th><th>Prioritas</th><th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="isi"></tbody>
+    </table>
   </div>
 </div>
 
 <script>
-  function toggleAuth() {
-    const role = document.getElementById('role').value;
-    const auth = document.getElementById('auth');
-    auth.classList.toggle('hidden', role === 'mahasiswa' || role === '');
-  }
+let laporan = [];
 
-  function login() {
-    const role = document.getElementById('role').value;
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+const bobot = { kerusakan:0.5, jenis:0.3, waktu:0.2 };
+const nilaiJenis = { Lampu:1, Kursi:2, AC:3, Listrik:4 };
 
-    if (!role) return alert('Pilih peran');
+function toggleAuth(){
+  auth.classList.toggle('hidden', role.value==='mahasiswa'||!role.value);
+}
 
-    if (role === 'admin' && (username !== 'admin' || password !== 'admin123')) {
-      return alert('Login Admin gagal');
-    }
+function login(){
+  if(!role.value) return alert('Pilih peran');
+  if(role.value==='admin' && (username.value!=='admin'||password.value!=='admin123')) return alert('Admin salah');
+  if(role.value==='dekan' && (username.value!=='dekan'||password.value!=='dekan123')) return alert('Dekan salah');
 
-    if (role === 'dekan' && (username !== 'dekan' || password !== 'dekan123')) {
-      return alert('Login Dekan gagal');
-    }
+  loginPage.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+  title.innerText='Dashboard '+role.value;
 
-    document.getElementById('loginPage').classList.add('hidden');
-    document.getElementById('dashboard').classList.remove('hidden');
+  menuMahasiswa.classList.toggle('hidden', role.value!=='mahasiswa');
+  menuAdmin.classList.toggle('hidden', role.value==='mahasiswa');
+}
 
-    document.getElementById('menuMahasiswa').classList.add('hidden');
-    document.getElementById('menuAdmin').classList.add('hidden');
+function logout(){location.reload()}
 
-    if (role === 'mahasiswa') {
-      document.getElementById('title').innerText = 'Dashboard Mahasiswa';
-      document.getElementById('menuMahasiswa').classList.remove('hidden');
-    } else if (role === 'admin') {
-      document.getElementById('title').innerText = 'Dashboard Admin';
-      document.getElementById('menuAdmin').classList.remove('hidden');
-    } else {
-      document.getElementById('title').innerText = 'Dashboard Dekan';
-      document.getElementById('menuAdmin').classList.remove('hidden');
-    }
-  }
+function showForm(){
+  form.classList.remove('hidden');
+  tabel.classList.add('hidden');
+}
 
-  function logout() {
-    location.reload();
-  }
+function showStatus(){
+  render();
+  tabel.classList.remove('hidden');
+  form.classList.add('hidden');
+}
 
-  function openForm() {
-    alert('Form laporan (demo)');
-  }
+function showAll(){
+  render();
+  tabel.classList.remove('hidden');
+}
+
+function kirim(){
+  laporan.push({
+    jenis:jenis.value,
+    lokasi:lokasi.value,
+    kerusakan:Number(tingkat.value),
+    status:'Menunggu',
+    waktu:Date.now(),
+    skor:0
+  });
+  alert('Laporan terkirim');
+  lokasi.value='';
+  showStatus();
+}
+
+function hitungSAW(){
+  const maxKer = Math.max(...laporan.map(l=>l.kerusakan));
+  const maxJenis = Math.max(...laporan.map(l=>nilaiJenis[l.jenis]));
+  const maxWaktu = Math.max(...laporan.map(l=>l.waktu));
+
+  laporan.forEach(l=>{
+    const nKer = l.kerusakan/maxKer;
+    const nJenis = nilaiJenis[l.jenis]/maxJenis;
+    const nWaktu = l.waktu/maxWaktu;
+    l.skor = (nKer*bobot.kerusakan)+(nJenis*bobot.jenis)+(nWaktu*bobot.waktu);
+  });
+
+  laporan.sort((a,b)=>b.skor-a.skor);
+  render();
+}
+
+function ubahStatus(i){
+  laporan[i].status = laporan[i].status==='Menunggu'?'Diproses':'Selesai';
+  render();
+}
+
+function render(){
+  isi.innerHTML='';
+  laporan.forEach((l,i)=>{
+    isi.innerHTML+=`
+    <tr>
+      <td>${l.jenis}</td>
+      <td>${l.lokasi}</td>
+      <td>${l.kerusakan}</td>
+      <td>${l.status}</td>
+      <td>${l.skor.toFixed(3)}</td>
+      <td>${role.value!=='mahasiswa'?`<button onclick="ubahStatus(${i})">Ubah</button>`:''}</td>
+    </tr>`;
+  });
+}
 </script>
-
 </body>
 </html>
